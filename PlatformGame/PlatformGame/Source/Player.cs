@@ -59,7 +59,7 @@ namespace PlatformGame
 
             //Check for collisions
             Vector2 newPos;
-            if ((newPos = HasCollided(this)) != Vector2.Zero)
+            if ((newPos = HasCollided(this, oldPosition)) != Vector2.Zero)
             {
                 Position -= newPos;
             }
@@ -67,84 +67,52 @@ namespace PlatformGame
             base.Update(gt);
         }
 
-        public Vector2 HasCollided(Player player)
+        public Vector2 HasCollided(Player player, Vector2 oldPos)
         {
-            foreach (var tile in _map.TileBounds.Where(x => x.title == "border"))
+            foreach (var tile in _map.TileBounds.Where(x => x.title == "border").Where(tile => player.BoundingBox.Intersects(tile.bound)))
             {
-                if (player.BoundingBox.Intersects(tile.bound))
-                {
-                    if (Velocity.X > Velocity.Y)
-                    {
-                        if (player.BoundingBox.Right > tile.bound.Left && player.BoundingBox.Right < tile.bound.Right)
-                        {
-                            //Right Tile
-                            Vector2 newPosition = new Vector2(player.BoundingBox.Right - tile.bound.Left, 0);
-                            return newPosition;
-                        }
+                //TODO: Calculate all the distance from all sides
+                var interX = Utils.MinIntersectionX(player.BoundingBox, tile.bound);
 
-                        if (player.BoundingBox.Left < tile.bound.Right && player.BoundingBox.Left > tile.bound.Left)
-                        {
-                            //Right Tile
-                            Vector2 newPosition = new Vector2(-(tile.bound.Right - player.BoundingBox.Left), 0);
-                            return newPosition;
-                        }
+                if (oldPos.X <= player.BoundingBox.X)
+                {
+                    
+                }
+
+                /*
+                if (Velocity.X > Velocity.Y && (Utils.IsRightOf(player.BoundingBox, tile.bound) || Utils.IsLeftOf(player.BoundingBox, tile.bound)))
+                {
+                    if (player.BoundingBox.Right > tile.bound.Left && player.BoundingBox.Right < tile.bound.Right)
+                    {
+                        //Right Tile
+                        Vector2 newPosition = new Vector2(player.BoundingBox.Right - tile.bound.Left, 0);
+                        return newPosition;
                     }
 
-                    if (Velocity.X < Velocity.Y)
+                    if (player.BoundingBox.Left < tile.bound.Right && player.BoundingBox.Left > tile.bound.Left)
                     {
-                        if (player.BoundingBox.Bottom > tile.bound.Top && player.BoundingBox.Bottom < tile.bound.Bottom)
-                        {
-                            //Top Tile
-                            Vector2 newPosition = new Vector2(0, player.BoundingBox.Bottom - tile.bound.Top);
-                            return newPosition;
-                        }
-
-                        if (player.BoundingBox.Top < tile.bound.Bottom && player.BoundingBox.Top > tile.bound.Top)
-                        {
-                            //Bottom Tile
-                            Vector2 newPosition = new Vector2(0, -(player.BoundingBox.Top - tile.bound.Bottom));
-                            return newPosition;
-                        }
+                        //Right Tile
+                        Vector2 newPosition = new Vector2(-(tile.bound.Right - player.BoundingBox.Left), 0);
+                        return newPosition;
                     }
                 }
-                /*
-                if (player.BoundingBox.Intersects(tile.bound))
-                {
-                    Console.WriteLine(player.BoundingBox.Right + " " + tile.bound.Left);
-                    if (Enumerable.Range(tile.bound.Top, tile.bound.Bottom).Contains(player.BoundingBox.Y))
-                    {
-                        if (tile.bound.Left > player.BoundingBox.Right)
-                        {
-                            //Right Tile
-                            Vector2 newPosition = new Vector2(tile.bound.Left - player.BoundingBox.Right, 0);
-                            return newPosition;
-                        }
-                        
-                        if (tile.bound.Right > player.BoundingBox.Left)
-                        {
-                            //Left Tile
-                            Vector2 newPosition = new Vector2(player.BoundingBox.Left - tile.bound.Right, 0);
-                            return newPosition;
-                        }
-                    }
-                    else if (Enumerable.Range(tile.bound.Left, tile.bound.Right).Contains(player.BoundingBox.X))
-                    {
-                        if (tile.bound.Left > player.BoundingBox.Right)
-                        {
-                            //Top Tile
-                            //Vector2 newPosition = new Vector2(0, ;
-                            //return newPosition;
-                        }
-                        else if (tile.bound.Right > player.BoundingBox.Left)
-                        {
-                            //Bottom Tile
-                           // Vector2 newPosition = new Vector2(0, );
-                            //return newPosition;
-                        }
-                    }
-                    Console.WriteLine(player.BoundingBox.X + ":" + player.BoundingBox.Y);
-                }*/
 
+                if (Velocity.X < Velocity.Y && (Utils.IsAboveOf(player.BoundingBox, tile.bound) || Utils.IsUnderOf(player.BoundingBox, tile.bound)))
+                {
+                    if (player.BoundingBox.Bottom > tile.bound.Top && player.BoundingBox.Bottom < tile.bound.Bottom)
+                    {
+                        //Top Tile
+                        Vector2 newPosition = new Vector2(0, player.BoundingBox.Bottom - tile.bound.Top);
+                        return newPosition;
+                    }
+
+                    if (player.BoundingBox.Top < tile.bound.Bottom && player.BoundingBox.Top > tile.bound.Top)
+                    {
+                        //Bottom Tile
+                        Vector2 newPosition = new Vector2(0, -(player.BoundingBox.Top - tile.bound.Bottom));
+                        return newPosition;
+                    }
+                }*/
             }
             return Vector2.Zero;
         }
