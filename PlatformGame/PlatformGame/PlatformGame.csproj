@@ -83,6 +83,7 @@
     <Compile Include="Source\Program.cs" />
     <Compile Include="Source\Main.cs" />
     <Compile Include="Source\SpriteManager.cs" />
+    <Compile Include="Source\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
