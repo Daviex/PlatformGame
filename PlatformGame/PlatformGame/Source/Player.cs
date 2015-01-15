@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,42 +13,69 @@ namespace PlatformGame
 {
     public class Player : SpriteManager
     {
+        private Map _map;
         public Vector2 Velocity;
-        public Vector2 Direction;
 
-        public Player(Vector2 position, Texture2D image, Vector2 velocity) : base(position, image)
+        public Player(Vector2 position, Texture2D image, Map map) : base(position, image)
         {
-            Velocity = velocity;
+            Velocity =  new Vector2(0, 0);
             Position = position;
+            _map = map;
             _Image = image;
         }
 
         public override void Update(GameTime gt)
         {
+
             var keyboard = Keyboard.GetState();
 
             if (keyboard.IsKeyDown(Keys.Right))
             {
-                Direction.X = 1;
-                Position.X = Position.X + Velocity.X * Direction.X;
+                Velocity += new Vector2(1, 0);
             }
             if (keyboard.IsKeyDown(Keys.Left))
             {
-                Direction.X = -1;
-                Position.X = Position.X + Velocity.X * Direction.X;
+                Velocity += new Vector2(-1, 0);
             }
             if (keyboard.IsKeyDown(Keys.Up))
             {
-                Direction.Y = -1;
-                Position.Y = Position.Y + Velocity.Y * Direction.Y;
+                Velocity += new Vector2(0, -1);
             }
             if (keyboard.IsKeyDown(Keys.Down))
             {
-                Direction.Y = 1;
-                Position.Y = Position.Y + Velocity.Y * Direction.Y;
+                Velocity += new Vector2(0, 1);
+            }
+
+            //Gravity
+            Velocity += Vector2.UnitY * .5f;
+
+            //Friction
+            Velocity -= Velocity * new Vector2(.1f, .1f);
+
+            //Update the movement
+            var oldPosition = Position;
+            Position += Velocity * (float)gt.ElapsedGameTime.TotalMilliseconds / 15;
+
+            //Check for collisions
+            if (HasCollided(this))
+            {
+                Position = oldPosition;
             }
 
             base.Update(gt);
+        }
+
+        public bool HasCollided(Player player)
+        {
+            foreach (var tile in _map.TileBounds.Where(x => x.title == "border"))
+            {
+                if (player.BoundingBox.Intersects(tile.bound))
+                {
+                    Console.WriteLine(player.BoundingBox.X + ":" + player.BoundingBox.Y);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override void Draw(SpriteBatch sb)

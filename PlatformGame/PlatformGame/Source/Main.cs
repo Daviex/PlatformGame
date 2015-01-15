@@ -75,15 +75,15 @@ namespace PlatformGame
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            franco = new Player(new Vector2(50,50), Content.Load<Texture2D>("franco"), new Vector2(3, 3));
-
-            _debugFont = Content.Load<SpriteFont>("DebugFont");
-
             _tileBorder = new SpriteManager(new Vector2(300, 500), Content.Load<Texture2D>("TestTile"));
 
             tileTextures.Add("border", _tileBorder);
 
             _map = new Map(Content.Load<Texture2D>("mapImage"), 32);
+
+            franco = new Player(new Vector2(0,0), Content.Load<Texture2D>("franco"), _map);
+
+            _debugFont = Content.Load<SpriteFont>("DebugFont");
 
             _Line = new Texture2D(GraphicsDevice, 1, 1);
             _Line.SetData<Color>(new Color[] { Color.Red });
@@ -107,16 +107,6 @@ namespace PlatformGame
         {
             franco.Update(gameTime);
             _camera.Update(franco.Center);
-
-            foreach (var tile in _map.TileBounds.Where(x => x.title == "border"))
-            {
-                
-                if (franco.BoundingBox.Intersects(tile.bound) && !(franco.BoundingBox.Top > tile.bound.Top))
-                {
-                    Console.WriteLine(franco.BoundingBox.X + ":" + franco.BoundingBox.Y);
-                    //franco.Velocity.Y = 0;
-                }
-            }
 
             base.Update(gameTime);
         }
