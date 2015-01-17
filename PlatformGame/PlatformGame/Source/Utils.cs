@@ -15,9 +15,9 @@ namespace PlatformGame.Source
         /// <returns>True if it's above of</returns>
         public static bool IsAboveOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Bottom > r2.Top && r1.Bottom < r2.Bottom)
+            if (r1.Bottom <= r2.Top)
                 return true;
-
+            
             return false;
         }
 
@@ -29,7 +29,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's under of</returns>
         public static bool IsUnderOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Top < r2.Bottom && r1.Top > r2.Top)
+            if (r1.Top >= r2.Bottom)
                 return true;
 
             return false;
@@ -43,7 +43,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's left of</returns>
         public static bool IsLeftOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Right > r2.Left && r1.Right < r2.Right)
+            if (r1.Right <= r2.Left)
                 return true;
 
             return false;
@@ -57,7 +57,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's right of</returns>
         public static bool IsRightOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Left < r2.Right && r1.Left > r2.Left)
+            if (r1.Left >= r2.Right)
                 return true;
 
             return false;
@@ -101,24 +101,41 @@ namespace PlatformGame.Source
             return 0.0f;
         }
 
-        public static Vector2 CalculateVectors(Rectangle r1, Rectangle r2, Vector2 oldPos)
+        public static Vector2 CalculateVectors(Player player, Rectangle r2, Rectangle oldPos)
         {
-            var topV = new Vector2(0, r1.Bottom - r2.Top);
-            var botV = new Vector2(0, r1.Top - r2.Bottom);
-            var leftV = new Vector2(r1.Right - r2.Left, 0);
-            var rightV = new Vector2(r1.Left - r2.Right, 0);
+            var topV = new Vector2(0, player.BoundingBox.Bottom - r2.Top);
+            var botV = new Vector2(0, player.BoundingBox.Top - r2.Bottom);
+            var leftV = new Vector2(player.BoundingBox.Right - r2.Left, 0);
+            var rightV = new Vector2(player.BoundingBox.Left - r2.Right, 0);
 
-            if (IsAboveOf(r1, r2))
-                    return topV;
-                if (IsUnderOf(r1, r2))
-                    return botV;
-            
-                if (IsLeftOf(r1, r2))
-                    return leftV;
-                if (IsRightOf(r1, r2))
-                    return rightV;
+            if (topV.Y > 0 && player.Velocity.Y > 0 && IsAboveOf(oldPos, r2))
+                return topV;
+            if (botV.Y < 0 && player.Velocity.Y < 0 && IsUnderOf(oldPos, r2))
+                return botV;
+            if (leftV.X > 0 && player.Velocity.X > 0 && IsLeftOf(oldPos, r2))
+               return leftV;
+            if (rightV.X < 0 && player.Velocity.X < 0 && IsRightOf(oldPos, r2))
+               return rightV;
 
             return Vector2.Zero;
+        }
+
+        public static float OverlapX(Rectangle r1, Rectangle r2)
+        {
+            return r1.Left < r2.Left ? r1.Right - r2.Left : r1.Left - r2.Right;
+        }
+
+        public static float OverlapY(Rectangle r1, Rectangle r2)
+        {
+            return r1.Top < r2.Top ? r1.Bottom - r2.Top : r1.Top - r2.Bottom;
+        }
+
+        public static int OverlapArea(Rectangle r1, Rectangle r2)
+        {
+            var x = OverlapX(r1, r2);
+            var y = OverlapY(r1, r2);
+
+            return Convert.ToInt32(x*y);
         }
     }
 }

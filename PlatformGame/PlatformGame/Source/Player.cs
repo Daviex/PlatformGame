@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Principal;
 using System.Text;
 using Microsoft.Xna.Framework;
@@ -54,26 +56,44 @@ namespace PlatformGame
             Velocity -= Velocity * new Vector2(.1f, .1f);
 
             //Update the movement
-            var oldPosition = Position;
+            var oldPosition = this.BoundingBox;
             Position += Velocity * (float)gt.ElapsedGameTime.TotalMilliseconds / 15;
+
+            Console.WriteLine(Velocity.X + " " + Velocity.Y);
 
             //Check for collisions
             Vector2 newPos;
-            if ((newPos = HasCollided(this, oldPosition)) != Vector2.Zero)
-            {
-                Position -= newPos;
-            }
+            HasCollided(oldPosition);
 
             base.Update(gt);
         }
 
-        public Vector2 HasCollided(Player player, Vector2 oldPos)
+        public void HasCollided(Rectangle oldPos)
         {
-            foreach (var tile in _map.TileBounds.Where(x => x.title == "border").Where(tile => player.BoundingBox.Intersects(tile.bound)))
+            var inCollide =
+                _map.TileBounds.Where(x => x.title == "border").Where(tile => this.BoundingBox.Intersects(tile.bound)).ToList();
+
+            List<Rectangle> boundsTest = new List<Rectangle>();
+
+            foreach (var tile in inCollide)
+            {
+                boundsTest.Add(tile.bound);
+            }
+            
+            boundsTest.Sort((x, y)=> Utils.OverlapArea(y, BoundingBox).CompareTo(Utils.OverlapArea(x, BoundingBox)));
+
+            foreach(var tile in boundsTest)
+            {
+                var value = Utils.CalculateVectors(this, tile, oldPos);
+                Position -= value;
+            }
+
+            foreach (var tile in _map.TileBounds.Where(x => x.title == "border").Where(tile => this.BoundingBox.Intersects(tile.bound)))
             {
                 //TODO: Calculate all the distance from all sides
-                var value = Utils.CalculateVectors(player.BoundingBox, tile.bound, oldPos);
-                return value;
+                var value = Utils.CalculateVectors(this, tile.bound, oldPos);
+
+                Position -= value;
 
                 /*
                 if (interX > 0) // Collision was on the left
@@ -122,7 +142,6 @@ namespace PlatformGame
                     }
                 }*/
             }
-            return Vector2.Zero;
         }
 
         public override void Draw(SpriteBatch sb)
