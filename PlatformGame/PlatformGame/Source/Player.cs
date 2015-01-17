@@ -70,24 +70,27 @@ namespace PlatformGame
 
         public void HasCollided(Rectangle oldPos)
         {
-            var inCollide =
-                _map.TileBounds.Where(x => x.title == "border").Where(tile => this.BoundingBox.Intersects(tile.bound)).ToList();
+            var inCollide = _map.TileBounds.Where(x => x.title == "border").Where(tile => this.BoundingBox.Intersects(tile.bound)).ToList();
 
-            List<Rectangle> boundsTest = new List<Rectangle>();
-
-            foreach (var tile in inCollide)
+            if (inCollide.Count > 0)
             {
-                boundsTest.Add(tile.bound);
-            }
-            
-            boundsTest.Sort((x, y)=> Utils.OverlapArea(y, BoundingBox).CompareTo(Utils.OverlapArea(x, BoundingBox)));
+                List<Rectangle> boundsTest = new List<Rectangle>();
 
-            foreach(var tile in boundsTest)
-            {
-                var value = Utils.CalculateVectors(this, tile, oldPos);
-                Position -= value;
+                foreach (var tile in inCollide)
+                {
+                    boundsTest.Add(tile.bound);
+                }
+
+                boundsTest.Sort((x, y) => Utils.OverlapArea(y, BoundingBox).CompareTo(Utils.OverlapArea(x, BoundingBox)));
+
+                foreach (var tile in boundsTest)
+                {
+                    var value = Utils.CalculateVectors(this, tile, oldPos);
+                    Position -= value;
+                }
             }
 
+            /*
             foreach (var tile in _map.TileBounds.Where(x => x.title == "border").Where(tile => this.BoundingBox.Intersects(tile.bound)))
             {
                 //TODO: Calculate all the distance from all sides
@@ -141,7 +144,7 @@ namespace PlatformGame
                         return newPosition;
                     }
                 }*/
-            }
+            //}
         }
 
         public override void Draw(SpriteBatch sb)

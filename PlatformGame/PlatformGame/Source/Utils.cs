@@ -120,22 +120,22 @@ namespace PlatformGame.Source
             return Vector2.Zero;
         }
 
-        public static float OverlapX(Rectangle r1, Rectangle r2)
+        public static int OverlapX(Rectangle r1, Rectangle r2)
         {
-            return r1.Left < r2.Left ? r1.Right - r2.Left : r1.Left - r2.Right;
+            return r1.Left < r2.Left ? r1.Right - r2.Left : r2.Right - r1.Left;
         }
 
-        public static float OverlapY(Rectangle r1, Rectangle r2)
+        public static int OverlapY(Rectangle r1, Rectangle r2)
         {
-            return r1.Top < r2.Top ? r1.Bottom - r2.Top : r1.Top - r2.Bottom;
+            return r1.Top < r2.Top ? r1.Bottom - r2.Top : r2.Bottom - r1.Top;
         }
 
-        public static int OverlapArea(Rectangle r1, Rectangle r2)
+        public static float OverlapArea(Rectangle r1, Rectangle r2)
         {
             var x = OverlapX(r1, r2);
             var y = OverlapY(r1, r2);
 
-            return Convert.ToInt32(x*y);
+            return x*y;
         }
     }
 }
