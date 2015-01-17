@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Security.Cryptography;
 using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Source
@@ -16,7 +15,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's above of</returns>
         public static bool IsAboveOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Bottom < r2.Top)
+            if (r1.Bottom > r2.Top && r1.Bottom < r2.Bottom)
                 return true;
 
             return false;
@@ -30,8 +29,9 @@ namespace PlatformGame.Source
         /// <returns>True if it's under of</returns>
         public static bool IsUnderOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Top > r2.Bottom)
+            if (r1.Top < r2.Bottom && r1.Top > r2.Top)
                 return true;
+
             return false;
         }
 
@@ -43,7 +43,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's left of</returns>
         public static bool IsLeftOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Right < r2.Left)
+            if (r1.Right > r2.Left && r1.Right < r2.Right)
                 return true;
 
             return false;
@@ -57,7 +57,7 @@ namespace PlatformGame.Source
         /// <returns>True if it's right of</returns>
         public static bool IsRightOf(Rectangle r1, Rectangle r2)
         {
-            if (r1.Left > r2.Right)
+            if (r1.Left < r2.Right && r1.Left > r2.Left)
                 return true;
 
             return false;
@@ -65,21 +65,60 @@ namespace PlatformGame.Source
 
         public static float MinIntersectionX(Rectangle r1, Rectangle r2)
         {
-            var left_right = Math.Abs(r1.Left - r2.Right);
-            var right_left = Math.Abs(r1.Right - r2.Left);
+            var pLeft_tRight = r1.Left - r2.Right;
+            var pRight_tLeft = r1.Right - r2.Left;
 
-            if (left_right > right_left)
+            if (Math.Abs(pLeft_tRight) > Math.Abs(pRight_tLeft))
             {
                 //We are on the right
-                return right_left;
+                return pRight_tLeft;
             }
-            else if (right_left > left_right)
+            else if (Math.Abs(pLeft_tRight) < Math.Abs(pRight_tLeft))
             {
                 //We are on the left
-                return left_right;
+                return pLeft_tRight;
             }
 
             return 0.0f;
+        }
+
+        public static float MinIntersectionY(Rectangle r1, Rectangle r2)
+        {
+            var pTop_tBottom = r1.Top - r2.Bottom;
+            var pBottom_tTop = r1.Bottom - r2.Top;
+
+            if (Math.Abs(pTop_tBottom) > Math.Abs(pBottom_tTop))
+            {
+                //We are on the right
+                return pBottom_tTop;
+            }
+            else if (Math.Abs(pTop_tBottom) < Math.Abs(pBottom_tTop))
+            {
+                //We are on the left
+                return pTop_tBottom;
+            }
+
+            return 0.0f;
+        }
+
+        public static Vector2 CalculateVectors(Rectangle r1, Rectangle r2, Vector2 oldPos)
+        {
+            var topV = new Vector2(0, r1.Bottom - r2.Top);
+            var botV = new Vector2(0, r1.Top - r2.Bottom);
+            var leftV = new Vector2(r1.Right - r2.Left, 0);
+            var rightV = new Vector2(r1.Left - r2.Right, 0);
+
+            if (IsAboveOf(r1, r2))
+                    return topV;
+                if (IsUnderOf(r1, r2))
+                    return botV;
+            
+                if (IsLeftOf(r1, r2))
+                    return leftV;
+                if (IsRightOf(r1, r2))
+                    return rightV;
+
+            return Vector2.Zero;
         }
     }
 }

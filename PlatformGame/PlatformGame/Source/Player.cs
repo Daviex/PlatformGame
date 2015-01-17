@@ -72,12 +72,20 @@ namespace PlatformGame
             foreach (var tile in _map.TileBounds.Where(x => x.title == "border").Where(tile => player.BoundingBox.Intersects(tile.bound)))
             {
                 //TODO: Calculate all the distance from all sides
-                var interX = Utils.MinIntersectionX(player.BoundingBox, tile.bound);
+                var value = Utils.CalculateVectors(player.BoundingBox, tile.bound, oldPos);
+                return value;
 
-                if (oldPos.X <= player.BoundingBox.X)
+                /*
+                if (interX > 0) // Collision was on the left
                 {
-                    
+                    var newPosition = new Vector2(interX, 0);
+                    return newPosition;
                 }
+                else if (interX < 0) //Collision was on the right
+                {
+                    var newPosition = new Vector2(interX, 0);
+                    return newPosition;
+                }*/
 
                 /*
                 if (Velocity.X > Velocity.Y && (Utils.IsRightOf(player.BoundingBox, tile.bound) || Utils.IsLeftOf(player.BoundingBox, tile.bound)))
